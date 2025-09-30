@@ -7,10 +7,20 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependências e Cache (✅ PARTE NOVA E ESSENCIAL)
 node_modules
+.yarn/cache
+.yarn/unplugged
+.pnp.*
+
+# Build output
 dist
 dist-ssr
+
+# Arquivos de ambiente
 *.local
+.env
+.env.*
 
 # Editor directories and files
 .vscode/*
