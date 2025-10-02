@@ -1,4 +1,6 @@
 import styled, { keyframes } from 'styled-components';
+import { shade } from 'polished';
+
 
 export const Container = styled.div`
 
@@ -56,6 +58,14 @@ export const Profile = styled.div`
 
         strong {
             color: #ff9000;
+        }
+
+        a {
+            text-decoration: none;
+
+            &:hover {
+                opacity: 0.8;
+            }
         }
     }
 `;
@@ -161,6 +171,10 @@ export const Section = styled.section`
         padding-bottom: 16px;
         margin-bottom: 16px;
     }
+
+    > p {
+        color: #999591;
+    }
 `;
 
 export const Appointment = styled.div`
@@ -176,6 +190,7 @@ export const Appointment = styled.div`
         display: flex;
         align-items: center;
         color: #f4ede8;
+        width: 70px;
 
         svg {
             color: #ff9000;
@@ -209,8 +224,82 @@ export const Appointment = styled.div`
 `;
 
 export const Calendar = styled.aside`
-    width: 380px;
+    max-width: 380px;
+    max-height: 360px;
+    background: #28262e;
+    border-radius: 10px;
+    padding: 16px;
+
+    .caption {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .rdp-nav {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .rdp-nav button {
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        padding: 8px; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s;
+    }
+
+    .rdp-nav button svg.rdp-chevron {
+        fill: #999591 !important;
+        transition: fill 0.2s;
+    }
+
+    .rdp-nav button:hover svg.rdp-chevron {
+        fill: #ff9000 !important;  
+    }
+
+    .weekday {
+        color: #666360;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .day {
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        border-radius: 4px;
+        cursor: pointer;
+        color: #f4ede8;
+        transition: background-color 0.2s, color 0.2s;
+
+        &:hover:not(.rdp-day_disabled):not(.selected) {
+            background-color: #ff900033; 
+            color: #ff9000;
+        }
+    }
+
+    .selected {
+        background-color: #ff9000 !important;
+        color: #232129 !important;
+        font-weight: 600;
+    }
+
+    .today {
+        border: 1px solid #ff9000 !important;
+        color: #ff9000 !important;
+        background: none !important;
+        font-weight: normal;
+    }
+
 `;
-
-
-
