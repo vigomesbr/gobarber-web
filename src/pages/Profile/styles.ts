@@ -2,12 +2,30 @@ import styled from 'styled-components';
 import { shade } from 'polished';
 
 export const Container = styled.div`
-justify-content: center;
-       
     header {
         height: 144px;
-        background: #282828;
+        background: #28262e;
+        display: flex;
+        align-items: center;
+
+        div {
+            width: 100%;
+            max-width: 1120px;
+            margin: 0 auto;
+
+            svg {
+                color: #999591;
+                 width: 24px;
+                height: 24px; 
+            }
+        }
     }
+`;
+
+export const Header = styled.header`
+    height: 144px;
+    display: flex;
+    align-items: stretch;
 `;
 
 
@@ -16,17 +34,15 @@ export const Content = styled.div`
     flex-direction: column;
     place-content: center;
     align-items: center;
-    justify-content: center;
     width: 100%;
     max-width: 700px;
-    margin: -175 auto 0;
+    margin: -80px auto 0;
 
     form {
         width: 340px;
         text-align: center;
         display: flex;
         flex-direction: column;
-        
 
         h1 {
             margin-bottom: 24px;
@@ -61,7 +77,7 @@ export const AvatarInput = styled.div`
         border-radius: 50%;
     }
 
-    button {
+    label {
         position: absolute;
         width: 48px;
         height: 48px;
@@ -73,10 +89,16 @@ export const AvatarInput = styled.div`
         display: flex;
         align-items: center;
         justify-content: center;
+        cursor: pointer;
+
+        input {
+            display: none;
+        }
 
         svg {
             width: 20px;
-            height: 20px; 
+            height: 20px;
+            color: #312e38;
         }
 
         &:hover {

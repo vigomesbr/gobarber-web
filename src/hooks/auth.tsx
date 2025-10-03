@@ -4,39 +4,46 @@ import api from "../services/apiClient";
 interface User {
     id: string;
     name: string;
+    email: string;
     avatar_url: string;
-}
+};
+
+interface AuthState {
+    token: string | null;
+    user: User | null;
+};
 
 interface SignInCreadentials {
     email: string;
     password: string
-}
+};
 
 interface AuthContextData {
-    user: User;
+    user: User | null;
     signIn(credentials: SignInCreadentials): Promise<void>;
     signOut(): void;
-}
+    updateUser(user: User): void;
+};
 
 interface AuthProviderProps {
     children: ReactNode;
-}
+};
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-    
-    const [data, setData] = useState(() => {
+
+    const [data, setData] = useState<AuthState>(() => {
         const token = localStorage.getItem('@GoBarber:token');
         const user = localStorage.getItem('@GoBarber:user');
 
-        if (token && user ) {
+        if (token && user) {
             api.defaults.headers.authorization = `Bearer ${token}`;
-            return {token, user: JSON.parse(user)};
-        } 
-        
-        return {};
+            return { token, user: JSON.parse(user) };
+        }
+
+        return { token: null, user: null };
     });
 
     const signIn = useCallback(async ({ email, password }: SignInCreadentials) => {
@@ -51,7 +58,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         localStorage.setItem('@GoBarber:user', JSON.stringify(user));
 
         api.defaults.headers.authorization = `Bearer ${token}`;
-        
+
         setData({ token, user })
 
     }, []);
@@ -60,13 +67,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         localStorage.removeItem('@GoBarber:token');
         localStorage.removeItem('@GoBarber:user');
 
-        setData({});
-  
-    },[])
-    
+        setData({ token: null, user: null });
+    }, [])
+
+    const updateUser = useCallback((userToUpdate: User) => {
+
+        localStorage.setItem('@GoBarber:user', JSON.stringify(userToUpdate));
+
+        setData(oldState => {
+            const newState = {
+                token: oldState.token,
+                user: userToUpdate,
+            };
+            return newState;
+        });
+    }, []);
+
     return (
-        <AuthContext.Provider value={{ user: data.user, signIn, signOut }}>
-            { children }
+        <AuthContext.Provider value={{ user: data.user, signIn, signOut, updateUser }}>
+            {children}
         </AuthContext.Provider>
     );
 }

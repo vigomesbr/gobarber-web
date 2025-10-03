@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, type ChangeEvent } from "react";
 import { Container, Content, AvatarInput } from './styles';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +13,7 @@ import { useAuth } from "../../hooks/auth";
 
 
 const Profile: React.FC = () => {
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
 
     const {
         register,
@@ -22,8 +22,8 @@ const Profile: React.FC = () => {
     } = useForm<ProfileFormData>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
-            name: '',
-            email: '',
+            name: user?.name,
+            email: user?.email,
             old_password: '',
             new_password: '',
             password_confirmation: '',
@@ -33,51 +33,87 @@ const Profile: React.FC = () => {
     const { addToast } = useToast();
     const navigate = useNavigate();
 
-    const handleSignUp: SubmitHandler<ProfileFormData> = useCallback(async (data) => {
-        try {
-            await api.put('/profile/update', {
-                name: data.name,
-                email: data.email,
-                password: data.new_password,
-                old_password: data.old_password
+    const handleProfileUpdate: SubmitHandler<ProfileFormData> = useCallback(
+        async (formData: ProfileFormData) => {
+            try {
+                const payload = {
+                    name: formData.name,
+                    email: formData.email,
+                    old_password: formData.old_password,
+                    password: formData.new_password,
+                };
+
+                if (!formData.new_password) {
+                    delete (payload as Partial<typeof payload>).password;
+                    delete (payload as Partial<typeof payload>).old_password;
+                }
+
+                const response = await api.put('/profile/update', payload);
+
+                updateUser(response.data.user);
+
+                addToast({
+                    type: 'success',
+                    title: 'Perfil atualizado!',
+                    description: 'Suas informações foram atualizadas com sucesso.',
+                });
+
+                navigate('/dashboard');
+            } catch (err) {
+                addToast({
+                    type: 'error',
+                    title: 'Erro na atualização',
+                    description: 'Ocorreu um erro ao atualizar o perfil, tente novamente.',
+                });
+            }
+        },
+        [updateUser, addToast, navigate],
+    );
+
+    const handleAvatarChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const data = new FormData();
+            data.append('avatar', e.target.files[0]);
+
+            api.patch('/users/avatar', data).then(response => {
+                const newUserObject = response.data.user;
+                updateUser(newUserObject);
+                addToast({
+                    type: 'success',
+                    title: 'Avatar atualizado',
+                });
             });
-
-            addToast({
-                type: 'success',
-                title: 'Perfil atualizado!'
-            })
-
-            navigate('/dashboard');
-
-        } catch (err) {
-            addToast({
-                type: 'error',
-                title: 'Erro na atualização',
-                description: 'Ocorreu um erro ao atualizar o perfil, tente novamente.'
-            });
-
-            return;
         }
-
-    }, [addToast, navigate]);
+    }, [addToast, updateUser]);
 
     return (
         <>
             <Container>
 
                 <header>
-                    <Link to="/dashboard">
-                        <FiArrowLeft />
-                    </Link>
+                    <div>
+                        <Link to="/dashboard">
+                            <FiArrowLeft />
+                        </Link>
+
+                    </div>
                 </header>
 
                 <Content>
 
-                    <form onSubmit={handleSubmit(handleSignUp)}>
+                    <form onSubmit={handleSubmit(handleProfileUpdate)}>
 
                         <AvatarInput>
-                            <img src={user.avatar_url || 'https://www.kindpng.com/picc/m/22-223863_no-avatar-png-circle-transparent-png.png'} alt={user.name} />
-                            <button type="button"><FiCamera /></button>
+                            <img
+                                src={user?.avatar_url
+                                    ? `${user.avatar_url}?${new Date().getTime()}`
+                                    : 'https://www.kindpng.com/picc/m/22-223863_no-avatar-png-circle-transparent-png.png'
+                                }
+                                alt={user?.name}
+                            />
+                            <label htmlFor="avatar"><FiCamera />
+                                <input type="file" id="avatar" onChange={handleAvatarChange} />
+                            </label>
                         </AvatarInput>
 
                         <h1>Meu perfil</h1>
